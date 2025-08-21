@@ -1,0 +1,49 @@
+// Stack using queue
+struct Stack {
+    struct Queue* q;
+    int capacity;
+};
+
+// Create stack
+struct Stack* createStack(int capacity) {
+    struct Stack* s = (struct Stack*)malloc(sizeof(struct Stack));
+    s->q = createQueue(capacity);
+    s->capacity = capacity;
+    return s;
+}
+
+// Push operation (costly)
+void push(struct Stack* s, int x) {
+    if (isFull(s->q)) {
+        printf("Stack Overflow\n");
+        return;
+    }
+
+    // Enqueue new element
+    enqueue(s->q, x);
+
+    // Rotate queue to put new element at front
+    for (int i = 0; i < s->q->size - 1; i++) {
+        enqueue(s->q, dequeue(s->q));
+    }
+}
+
+// Pop operation
+int pop(struct Stack* s) {
+    if (isEmpty(s->q)) {
+        printf("Stack Underflow\n");
+        return -1;
+    }
+    return dequeue(s->q);
+}
+
+// Peek (top element)
+int top(struct Stack* s) {
+    if (isEmpty(s->q)) return -1;
+    return s->q->arr[s->q->front];
+}
+
+// Check if stack is empty
+int isEmptyStack(struct Stack* s) {
+    return isEmpty(s->q);
+}
