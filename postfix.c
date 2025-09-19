@@ -8,7 +8,6 @@ struct TreeNode {
     struct TreeNode* right;
 };
 
-
 struct TreeNode* createNode(char value) {
     struct TreeNode* newNode = (struct TreeNode*)malloc(sizeof(struct TreeNode));
     if (newNode != NULL) {
@@ -22,7 +21,6 @@ struct TreeNode* createNode(char value) {
 int isOperator(char c) {
     return (c == '+' || c == '-' || c == '*' || c == '/');
 }
-
 
 struct TreeNode* buildExpressionTree(char postfix[]) {
     struct TreeNode* stack[100];
@@ -40,15 +38,20 @@ struct TreeNode* buildExpressionTree(char postfix[]) {
     return stack[top];
 }
 
-
-void inOrderTraversal(struct TreeNode* root) {
-    if (root != NULL) {
-        inOrderTraversal(root->left);
-        printf("%c ", root->data);
-        inOrderTraversal(root->right);
+// Print infix expression with brackets
+void printInfixWithBrackets(struct TreeNode* root) {
+    if (root == NULL)
+        return;
+    if (root->left && root->right) {
+        printf("(");
+        printInfixWithBrackets(root->left);
+        printf(" %c ", root->data);
+        printInfixWithBrackets(root->right);
+        printf(")");
+    } else {
+        printf("%c", root->data);
     }
 }
-
 
 void freeExpressionTree(struct TreeNode* root) {
     if (root != NULL) {
@@ -65,8 +68,8 @@ int main() {
 
     struct TreeNode* root = buildExpressionTree(postfixExpression);
 
-    printf("In-order Traversal of the Expression Tree: ");
-    inOrderTraversal(root);
+    printf("Fully Parenthesized Infix Expression: ");
+    printInfixWithBrackets(root);
     printf("\n");
 
     freeExpressionTree(root);
