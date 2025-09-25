@@ -1,0 +1,103 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Node structure
+struct Node {
+    char data;
+    struct Node* left;
+    struct Node* right;
+};
+
+// Create new node
+struct Node* newNode(char data) {
+    struct Node* node = (struct Node*)malloc(sizeof(struct Node));
+    node->data = data;
+    node->left = node->right = NULL;
+    return node;
+}
+
+// Utility to search index in Inorder
+int search(char inorder[], int start, int end, char value) {
+    for (int i = start; i <= end; i++) {
+        if (inorder[i] == value)
+            return i;
+    }
+    return -1;
+}
+
+// ---------- BUILD TREE FROM PRE + IN ---------- //
+struct Node* buildTreePreIn(char inorder[], char preorder[], int inStart, int inEnd, int* preIndex) {
+    if (inStart > inEnd)
+        return NULL;
+
+    // Current node from preorder
+    struct Node* node = newNode(preorder[*preIndex]);
+    (*preIndex)++;
+
+    if (inStart == inEnd) // leaf node
+        return node;
+
+    // Find position of node in inorder
+    int inIndex = search(inorder, inStart, inEnd, node->data);
+
+    // Recursively build left & right
+    node->left = buildTreePreIn(inorder, preorder, inStart, inIndex - 1, preIndex);
+    node->right = buildTreePreIn(inorder, preorder, inIndex + 1, inEnd, preIndex);
+
+    return node;
+}
+
+// ---------- BUILD TREE FROM POST + IN ---------- //
+struct Node* buildTreePostIn(char inorder[], char postorder[], int inStart, int inEnd, int* postIndex) {
+    if (inStart > inEnd)
+        return NULL;
+
+    // Current node from postorder
+    struct Node* node = newNode(postorder[*postIndex]);
+    (*postIndex)--;
+
+    if (inStart == inEnd) // leaf node
+        return node;
+
+    // Find position of node in inorder
+    int inIndex = search(inorder, inStart, inEnd, node->data);
+
+    // NOTE: build right before left (postorder goes reverse)
+    node->right = buildTreePostIn(inorder, postorder, inIndex + 1, inEnd, postIndex);
+    node->left = buildTreePostIn(inorder, postorder, inStart, inIndex - 1, postIndex);
+
+    return node;
+}
+
+// ---------- PRINT (Preorder Traversal) ---------- //
+void printPreorder(struct Node* node) {
+    if (node == NULL) return;
+    printf("%c ", node->data);
+    printPreorder(node->left);
+    printPreorder(node->right);
+}
+
+// ---------- DRIVER CODE ---------- //
+int main() {
+    // Example tree from earlier
+    char inorder[]   = { 'H','D','I','B','J','E','K','A','L','F','C','M','G','N' };
+    char preorder[]  = { 'A','B','D','H','I','E','J','K','C','F','L','G','M','N' };
+    char postorder[] = { 'H','I','D','J','K','E','B','L','F','M','N','G','C','A' };
+    int n = sizeof(inorder)/sizeof(inorder[0]);
+
+    // Build from Pre+In
+    int preIndex = 0;
+    struct Node* root1 = buildTreePreIn(inorder, preorder, 0, n-1, &preIndex);
+    printf("Tree constructed from Preorder + Inorder (Preorder print):\n");
+    printPreorder(root1);
+    printf("\n");
+
+    // Build from Post+In
+    int postIndex = n-1;
+    struct Node* root2 = buildTreePostIn(inorder, postorder, 0, n-1, &postIndex);
+    printf("Tree constructed from Postorder + Inorder (Preorder print):\n");
+    printPreorder(root2);
+    printf("\n");
+
+    return 0;
+}
